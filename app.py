@@ -195,14 +195,15 @@ class MacroLibraryApp(tk.Tk):
         self.tree.delete(*self.tree.get_children())
         filtered = [e for e in self.entries
                     if self.active_filter == "All" or e["category"] == self.active_filter]
-        last_cat = None
+        seen_categories = set()
         first_id = None
         for e in filtered:
-            if e["category"] != last_cat:
-                self.tree.insert("", "end", iid=f"cat::{e['category']}",
+            cat_iid = f"cat::{e['category']}"
+            if e["category"] not in seen_categories:
+                self.tree.insert("", "end", iid=cat_iid,
                                   text=e["category"], tags=("category",), open=True)
-                last_cat = e["category"]
-            self.tree.insert(f"cat::{e['category']}", "end", iid=e["id"],
+                seen_categories.add(e["category"])
+            self.tree.insert(cat_iid, "end", iid=e["id"],
                               text="  " + e["title"], tags=(e["confidence"],))
             if first_id is None:
                 first_id = e["id"]
