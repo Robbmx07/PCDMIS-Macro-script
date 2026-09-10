@@ -1,0 +1,17 @@
+' Native command block — paste directly into Command Mode.
+' Auto-generates a date/time-stamped PDF report at the end of the
+' routine. Paste at the very end, after all dimensions.
+' Confidence: HIGH — PRINT/REPORT syntax with TO_FILE/OUTPUT_FORMAT
+' and the SYSTEMDATE/SYSTEMTIME date-stamping pattern confirmed from
+' real working routines shared by users in Hexagon's community.
+
+ASSIGN/V_PDF_INDEX = SYSTEMDATE("yyMMdd") + "_" + SYSTEMTIME("HHmmss")
+ASSIGN/V_PDF_FILE = "C:\CMM_Reports\Inspection_Report_" + V_PDF_INDEX + ".PDF"
+
+PRINT/REPORT,EXEC MODE=END,$
+TO_FILE=ON,OVERWRITE=V_PDF_FILE,AUTO OPEN=OFF,$
+TO_PRINTER=OFF,COPIES=1,$
+TO_DMIS_REPORT=OFF,FILE_OPTION=OVERWRITE,FILENAME=,$
+REPORT_THEORETICALS=ALL,REPORT_FEATURE_WITH_DIMENSIONS=NO,$
+TO_EXCEL=OFF,$
+PREVIOUS_RUNS=DELETE_INSTANCES

@@ -1,0 +1,12 @@
+' Native command block — paste directly into Command Mode.
+' Pre-run fixture/setup confirmation loop. No Basic script required.
+' Paste at the very top of the routine, before any motion commands.
+' Confidence: HIGH — LABEL/GOTO/IF...END_IF pattern confirmed against
+' real working PC-DMIS code.
+
+LBL_FIXTURE_CHECK =LABEL/
+C1 =COMMENT/YESNO,Is the part securely clamped and fixture clear of obstructions?
+IF/C1.INPUT=="NO"
+COMMENT/OPER,NO,Please correct the fixture setup, then continue.
+GOTO/LBL_FIXTURE_CHECK
+END_IF/

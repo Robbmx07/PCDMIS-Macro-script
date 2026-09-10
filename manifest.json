@@ -1,0 +1,177 @@
+[
+  {
+    "id": "oot-csv-export",
+    "title": "Out-of-Tolerance CSV Export",
+    "category": "Data Logging",
+    "type": "Basic Script",
+    "confidence": "high",
+    "confidenceNote": "Object model verified against Hexagon docs and multiple independent working examples. Known gap: does not read Geometric Tolerance / FCF dimensions correctly (see caveats) \u2014 legacy DIM commands only.",
+    "filename": "OOT_CSV_Export.bas",
+    "companion": "OOT_CSV_Export_Insert.txt",
+    "description": "Scans every dimension in the routine after it runs and appends any out-of-tolerance result to a CSV log file.",
+    "explanation": "After the routine executes, this walks the Commands collection, finds every legacy DIM-type dimension, and writes a row (timestamp, feature ID, nominal, measured, deviation, OutTol) to C:\\CMM_Logs\\Out_Of_Tolerance_Log.csv for any feature that failed tolerance.",
+    "guide": [
+      "Confirm your PC-DMIS license is CAD or CAD++ (Basic scripting is not available on Pro-only licenses).",
+      "Create the C:\\CMM_Logs folder on the CMM controller PC if it doesn't already exist.",
+      "Save OOT_CSV_Export.bas to a known path, e.g. C:\\PCDMIS_Scripts\\.",
+      "In the Edit window, go to Insert > Basic Script, browse to the file, place it at the very end of your routine (after every dimension you want captured), set Function to Main and Show to Yes.",
+      "Run the full routine start to finish so dimensions actually have measured values before the script reads them.",
+      "Open the CSV and confirm real (non-zero) values for any flagged row. If a row shows all zeros, see the caveat below before trusting it."
+    ],
+    "caveats": "If the flagged feature ID starts with \"FCF\" (Feature Control Frame / Geometric Tolerance), this script will likely report all zeros \u2014 that data type isn't exposed through the DimensionCommand object the same way legacy dimensions are. This is a confirmed PC-DMIS/Hexagon limitation, not a bug in this script. Test against a routine with legacy DIM commands first to confirm the object model works, then test against your real GD&T-heavy routines separately."
+  },
+  {
+    "id": "part-counter",
+    "title": "Part Counter Auto-Increment",
+    "category": "Batch Runs",
+    "type": "Basic Script",
+    "confidence": "high",
+    "confidenceNote": "Directly grounded in Hexagon's own official automation sample script.",
+    "filename": "PartCounter_Increment.bas",
+    "companion": "PartCounter_Insert.txt",
+    "description": "Increments a part counter variable by 1 each time it runs \u2014 for tracking progress through a batch of parts.",
+    "explanation": "Reads the current value of a V_PART_COUNT variable, adds 1, writes it back, and shows the new count in a message box. Intended to run once per loop iteration in a batch routine.",
+    "guide": [
+      "Confirm CAD/CAD++ license.",
+      "Add ASSIGN/V_PART_COUNT = 0 once, before your part loop begins.",
+      "Save the .bas file locally and insert it inside the loop (after each part is measured) via Insert > Basic Script.",
+      "Run a short batch (2-3 parts) and confirm the count increments correctly each pass."
+    ],
+    "caveats": "SetVariableValue only holds the new value for the rest of the current execution run. If you need the count to persist permanently across separate saved executions, use PutText instead (not included in this script)."
+  },
+  {
+    "id": "validate-sn",
+    "title": "Serial Number Format Validator",
+    "category": "Operator Input",
+    "type": "Basic Script",
+    "confidence": "high",
+    "confidenceNote": "Native LABEL/GOTO/IF...END_IF re-prompt structure confirmed against real, working, user-posted PC-DMIS code \u2014 not reconstructed from documentation alone.",
+    "filename": "Validate_SerialNumber.bas",
+    "companion": "Validate_SerialNumber_Insert.txt",
+    "description": "Prompts the operator for a serial number, checks it matches an SN-#### format, and re-prompts automatically if it doesn't.",
+    "explanation": "The native wrapper collects operator input via COMMENT/INPUT, hands it to this script, which checks the format and sets a V_SN_VALID flag. If invalid, the native IF/GOTO loop sends the operator back to the same prompt.",
+    "guide": [
+      "Confirm CAD/CAD++ license.",
+      "Save the .bas file locally, e.g. C:\\PCDMIS_Scripts\\Validate_SerialNumber.bas.",
+      "Paste the full block from the companion .txt file into Command Mode where you want the prompt to appear.",
+      "Run the routine, deliberately enter a badly formatted serial number first to confirm it re-prompts, then enter a valid one (e.g. SN-0248) to confirm it proceeds."
+    ],
+    "caveats": "The expected format (SN-####, exactly 7 characters) is a placeholder \u2014 edit the Len/Left/Right checks in the script to match your actual part numbering convention before relying on this."
+  },
+  {
+    "id": "excel-export",
+    "title": "Excel Results Export",
+    "category": "Data Logging",
+    "type": "Basic Script",
+    "confidence": "moderate",
+    "confidenceNote": "PC-DMIS object access is verified; Excel COM automation calls are standard convention but this combined script has not been run against a live PC-DMIS session.",
+    "filename": "Excel_Export_Results.bas",
+    "companion": "Excel_Export_Insert.txt",
+    "description": "Exports every dimension result in the routine to a new Excel workbook, one row per feature.",
+    "explanation": "Opens Excel in the background via COM automation, writes a header row, then walks every legacy DIM dimension in the routine and writes ID/Nominal/Measured/Deviation/OutTol to its own row before saving and closing the workbook.",
+    "guide": [
+      "Confirm CAD/CAD++ license and that Microsoft Excel is installed on the CMM PC.",
+      "Create C:\\CMM_Logs if it doesn't exist.",
+      "Insert at the very end of the routine, after every dimension you want included.",
+      "Run the full routine, then confirm a new .xlsx file appears in C:\\CMM_Logs named after the routine."
+    ],
+    "caveats": "Same GeoTol/FCF limitation as the CSV export \u2014 legacy DIM dimensions only. If Excel is slow to close, add a short delay before Quit, or confirm no other Excel instance is holding a lock on the file."
+  },
+  {
+    "id": "runtime-logger",
+    "title": "Routine Runtime Logger",
+    "category": "Batch Runs",
+    "type": "Basic Script",
+    "confidence": "moderate",
+    "confidenceNote": "Variable read/write and file logging patterns are individually verified; this specific two-Sub, two-insertion-point combination has not been tested end to end.",
+    "filename": "Runtime_Logger.bas",
+    "companion": "Runtime_Logger_Insert.txt",
+    "description": "Times how long a routine takes to run and logs the elapsed seconds to a CSV file.",
+    "explanation": "One Sub (StartTimer) records the current time to a variable near the top of the routine; a second Sub (StopTimer) at the end reads it back, computes the elapsed time, and appends a row to a runtime log.",
+    "guide": [
+      "Confirm CAD/CAD++ license.",
+      "Add ASSIGN/V_START_TIME = \"\" near the very top of the routine.",
+      "Insert the script with Function set to StartTimer right after that line.",
+      "Insert the script again at the very end of the routine, this time with Function set to StopTimer.",
+      "Run the full routine and confirm a row appears in C:\\CMM_Logs\\Runtime_Log.csv with a plausible elapsed time."
+    ],
+    "caveats": "Two separate SCRIPT/ blocks reference the same .bas file but call different Subs via the FUNCTION/ line \u2014 make sure you set Function correctly on each insertion, it's easy to leave both on Main by mistake."
+  },
+  {
+    "id": "shift-log",
+    "title": "Operator Shift Log",
+    "category": "Operator Input",
+    "type": "Basic Script",
+    "confidence": "high",
+    "confidenceNote": "Reuses the same verified variable-read and file-logging pattern as the OOT export and serial number validator.",
+    "filename": "Operator_ShiftLog.bas",
+    "companion": "Operator_ShiftLog_Insert.txt",
+    "description": "Logs the operator's employee/clock number with a timestamp and routine name for run traceability.",
+    "explanation": "Prompts for an employee ID via COMMENT/INPUT, then this script appends a timestamped row (routine name + employee ID) to a shift log CSV.",
+    "guide": [
+      "Confirm CAD/CAD++ license.",
+      "Create C:\\CMM_Logs if it doesn't exist.",
+      "Insert near the top of the routine, before measurement begins.",
+      "Run the routine, enter an employee number when prompted, and confirm a row appears in Shift_Log.csv."
+    ],
+    "caveats": "No format validation on the employee ID in this version \u2014 pairs well with the same validation approach used in the serial number script if you want to enforce a specific ID format."
+  },
+  {
+    "id": "pdf-report",
+    "title": "Auto-Named PDF Report Export",
+    "category": "Reporting",
+    "type": "Native Command Block",
+    "confidence": "high",
+    "confidenceNote": "PRINT/REPORT syntax and the SYSTEMDATE/SYSTEMTIME date-stamping pattern confirmed from real working routines shared by users in Hexagon's support community.",
+    "filename": "PDF_AutoReport_Export.txt",
+    "companion": null,
+    "description": "Automatically exports a date/time-stamped PDF report at the end of the routine \u2014 no Basic script required.",
+    "explanation": "Pure native command language. Builds a unique filename from the current date and time, then uses PRINT/REPORT with TO_FILE=ON and OUTPUT_FORMAT/PDF to save the report without prompting.",
+    "guide": [
+      "Create the C:\\CMM_Reports folder if it doesn't exist.",
+      "Open the .txt file, select all, copy.",
+      "In PC-DMIS, switch the Edit window to Command Mode (View > Command Mode).",
+      "Paste at the very end of your routine, after all dimensions.",
+      "Run the routine and confirm a uniquely named PDF appears in C:\\CMM_Reports."
+    ],
+    "caveats": "This is a plain paste-in native command block, not a Basic script \u2014 there's no SCRIPT/FILENAME reference to manage, just copy/paste into Command Mode at the right spot."
+  },
+  {
+    "id": "alignment-321",
+    "title": "3-2-1 Datum Alignment Template",
+    "category": "Alignment",
+    "type": "Native Command Block",
+    "confidence": "moderate",
+    "confidenceNote": "Standard, widely-used PC-DMIS alignment shape, but not cross-checked parameter-by-parameter against a live export in this conversation.",
+    "filename": "Alignment_321_Template.txt",
+    "companion": null,
+    "description": "A reusable Level / Rotate / Translate datum alignment block template.",
+    "explanation": "Levels the Z-axis to a primary datum plane, rotates X to a secondary datum line, then translates the origin to nominal coordinates \u2014 the standard 3-2-1 alignment sequence.",
+    "guide": [
+      "Open the .txt file and replace PLN_DATUM_A, LIN_DATUM_B, and the origin points with your actual feature names.",
+      "Switch to Command Mode in the Edit window.",
+      "Paste at the point in your routine where the alignment should occur.",
+      "Run through the alignment step by step (not full-auto) the first time to visually confirm each move makes sense before trusting it in a full run."
+    ],
+    "caveats": "Given the moderate confidence rating, treat this one as a starting skeleton rather than drop-in code \u2014 check it against one of your own known-good alignment exports, since you already have deep expertise here to verify against."
+  },
+  {
+    "id": "fixture-check",
+    "title": "Fixture Setup Confirmation Loop",
+    "category": "Operator Input",
+    "type": "Native Command Block",
+    "confidence": "high",
+    "confidenceNote": "LABEL/GOTO/IF...END_IF pattern confirmed against real, working, user-posted PC-DMIS code.",
+    "filename": "FixtureCheck_Confirmation.txt",
+    "companion": null,
+    "description": "A yes/no confirmation gate at the top of a routine that won't let the routine proceed until the operator confirms the fixture is set up correctly.",
+    "explanation": "Pure native command language, no Basic script needed. Asks a yes/no question; if the answer is No, it loops back to the same question instead of proceeding.",
+    "guide": [
+      "Open the .txt file, select all, copy.",
+      "Switch to Command Mode in the Edit window.",
+      "Paste at the very top of the routine, before any motion commands.",
+      "Run the routine and answer No once to confirm it loops back, then Yes to confirm it proceeds."
+    ],
+    "caveats": "Simple and low-risk \u2014 this is the safest file in the library to test first since it touches no automation objects, files, or external applications."
+  }
+]

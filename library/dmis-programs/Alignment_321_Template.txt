@@ -1,0 +1,16 @@
+' Native command block — paste directly into Command Mode.
+' Standard 3-2-1 datum alignment template (Level / Rotate / Translate).
+' Replace PLN_DATUM_A, LIN_DATUM_B, and the origin points with your
+' actual feature names before use.
+' Confidence: MODERATE — general shape is standard PC-DMIS practice,
+' but this has not been cross-checked parameter-by-parameter against
+' a live routine. Verify against one of your own known-good alignment
+' exports before relying on this as-is.
+
+A1 =ALIGNMENT/START,RECALL:STARTUP,LIST=YES
+ALIGNMENT/LEVEL,ZPLUS,PLN_DATUM_A
+ALIGNMENT/ROTATE,XPLUS,TO,LIN_DATUM_B,ABOUT,ZPLUS
+ALIGNMENT/TRANS,XAXIS,PNT_ORIGIN_X
+ALIGNMENT/TRANS,YAXIS,PNT_ORIGIN_Y
+ALIGNMENT/TRANS,ZAXIS,PLN_DATUM_A
+ALIGNMENT/END

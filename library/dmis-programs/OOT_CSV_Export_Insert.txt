@@ -1,0 +1,10 @@
+' Native command block — paste directly into Command Mode.
+' Insert at the very end of the routine, after every dimension (DIM)
+' command you want captured. Insert > Basic Script will generate the
+' same block automatically when you browse to OOT_CSV_Export.bas.
+' Confidence: HIGH — SCRIPT/FILENAME/FUNCTION/ENDSCRIPT structure
+' confirmed from Hexagon's own documentation.
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\OOT_CSV_Export.bas
+FUNCTION/Main,SHOW=YES,,
+ENDSCRIPT/
