@@ -11,14 +11,17 @@ A growing library of PC-DMIS automation, organized by type:
 
 Every entry is tracked here as one of:
 
-- **draft** — written from general/documented knowledge, not yet tested in
-  real PC-DMIS. Treat as unverified.
+- **draft** — written from general knowledge, not confirmed by any
+  documentation or test. Treat as unverified.
+- **documented** — matches vendor (Hexagon) documentation the user provided,
+  but not yet confirmed by a real test run in PC-DMIS.
 - **verified** — confirmed by running in real PC-DMIS and importing/executing
   cleanly with no manual fixes.
 
 | File | Type | Status | Notes |
 |---|---|---|---|
-| `basic-scripts/AlignmentRepeatability.bas` | Basic script | draft | Loops an alignment N times, checks origin/orientation spread against tolerance. A few PC-DMIS-specific API calls are marked `VERIFY:` in the file and need confirming against a real test run. |
+| `basic-scripts/AlignmentRepeatability.bas` | Basic script | draft (partially documented) | Loops an alignment N times, checks origin/orientation spread against tolerance. `CreateObject("PCDLRN.Application")` and `App.ActivePartProgram` are now documented (see reference below); reading back the alignment result and re-running a labeled block are still unconfirmed guesses marked `VERIFY:`. |
+| `reference/hexagon-sample-01-increment-variable/` | Reference (vendor doc) | documented | Hexagon's own sample: DMIS program calls a `.bas` script to increment a variable. Confirms `CreateObject`, `ActivePartProgram`, `GetVariableValue`/`SetVariableValue`, and the `SCRIPT/FILENAME=` block for invoking a script from a program. |
 
 ## Adding a new entry
 

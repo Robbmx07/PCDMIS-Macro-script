@@ -21,18 +21,30 @@
 '   across trials, compares that range to the tolerances below, and
 '   writes a PASS/FAIL summary to a CSV log file plus a message box.
 '
-' NOT YET VERIFIED AGAINST REAL PC-DMIS
-'   Every line tagged 'VERIFY: below is a best-guess at the correct
-'   PC-DMIS Basic object/property/method name based on commonly
-'   documented usage. Everything else (loop, math, file I/O, dialogs)
-'   is plain Basic and should run as written in any Basic host.
+' VERIFICATION STATUS
+'   Connecting to PC-DMIS (CreateObject("PCDLRN.Application") and
+'   App.ActivePartProgram) is confirmed against Hexagon's own
+'   documented sample - see
+'   library/reference/hexagon-sample-01-increment-variable/. Everything
+'   else still tagged 'VERIFY: below is a best-guess at the correct
+'   PC-DMIS Basic object/property/method name and has not been tested.
+'   Everything else (loop, math, file I/O, dialogs) is plain Basic and
+'   should run as written in any Basic host.
 '
-'   To validate: open this in PC-DMIS's Basic editor with a part
-'   program loaded that has its alignment commands wrapped in
-'   LABEL/ALIGN_START ... LABEL/ALIGN_END (see "SETUP REQUIRED"
-'   below), run it, and send back the exact error text + line number
-'   for anything that fails. That will let me fix the specific
+'   To validate the remaining VERIFY lines: open this in PC-DMIS's Basic
+'   editor with a part program loaded that has its alignment commands
+'   wrapped in LABEL/ALIGN_START ... LABEL/ALIGN_END (see "SETUP
+'   REQUIRED" below), run it, and send back the exact error text + line
+'   number for anything that fails. That will let me fix the specific
 '   VERIFY line instead of re-guessing the whole script.
+'
+'   Also note: this script must currently be run standalone from PC-
+'   DMIS's Basic editor. To call it from inside a part program instead
+'   (the documented pattern), wrap it in the part program like:
+'       CS1  =SCRIPT/FILENAME= <path>\AlignmentRepeatability.bas
+'            FUNCTION/Main,SHOW=YES,,
+'            STARTSCRIPT/
+'            ENDSCRIPT/
 '
 ' SETUP REQUIRED IN THE PART PROGRAM
 '   Wrap the alignment command block in the loaded part program with
@@ -55,13 +67,9 @@ Const ALIGN_END_LABEL      As String  = "ALIGN_END"
 Const LOG_FILE_PATH        As String  = "C:\PCDMIS_Logs\AlignmentRepeatability.csv"
 
 ' ---- Globals used across Subs/Functions -----------------------------
-Dim App As Object              'VERIFY: top-level PC-DMIS Application object; inside the built-in
-                                '        Basic editor this is normally already available as a
-                                '        global (often named "App" or "Application") without
-                                '        needing CreateObject/GetObject. If Set App = ... is needed
-                                '        instead, the typical external-automation form is:
-                                '            Set App = GetObject(, "PCDLRN.Application")
-Dim Part1 As Object            'VERIFY: App.ActivePartIObject (the currently active/loaded part)
+Dim App As Object              'CONFIRMED: CreateObject("PCDLRN.Application") - see
+                                '           library/reference/hexagon-sample-01-increment-variable/
+Dim Part1 As Object            'CONFIRMED: App.ActivePartProgram (the currently active/loaded part)
 
 Sub Main()
 
@@ -87,8 +95,8 @@ Sub Main()
     Dim zAxisJ(1 To numTrials)  As Double
     Dim zAxisK(1 To numTrials)  As Double
 
-    Set App = GetPCDMISApplication()
-    Set Part1 = App.ActivePartIObject   'VERIFY: property name for the active part
+    Set App = CreateObject("PCDLRN.Application")
+    Set Part1 = App.ActivePartProgram
 
     For i = 1 To numTrials
         RunAlignmentBlock
@@ -135,28 +143,6 @@ Sub Main()
 End Sub
 
 ' ---------------------------------------------------------------------
-' Returns the running PC-DMIS Application object.
-'VERIFY: exact call for obtaining the Application object from inside
-'        a script running in PC-DMIS's own Basic editor. Many PC-DMIS
-'        Basic hosts expose it as an already-instantiated global
-'        (try just using "App" or "Application" directly and deleting
-'        this function). The GetObject form below is the documented
-'        pattern for EXTERNAL automation (a script/exe outside PC-DMIS
-'        attaching to a running instance) and is included as a
-'        fallback in case the global isn't automatically in scope.
-' ---------------------------------------------------------------------
-Function GetPCDMISApplication() As Object
-    On Error Resume Next
-    Dim obj As Object
-    Set obj = Application            'VERIFY: try the assumed global first
-    If obj Is Nothing Then
-        Set obj = GetObject(, "PCDLRN.Application")   'VERIFY: ProgID
-    End If
-    On Error GoTo 0
-    Set GetPCDMISApplication = obj
-End Function
-
-' ---------------------------------------------------------------------
 ' Re-runs only the alignment command block, located between the
 ' LABEL/ALIGN_START and LABEL/ALIGN_END commands in the loaded part
 ' program.
@@ -180,7 +166,16 @@ End Sub
 ' ---------------------------------------------------------------------
 ' Reads back the currently active coordinate system's origin and
 ' Z-axis direction vector after an alignment has just been run.
-'VERIFY: property path down to CoordSys/origin/axis-vector values.
+'VERIFY: property path down to CoordSys/origin/axis-vector values. This
+'        is the least-confirmed part of the whole script. An
+'        alternative that leans on the now-confirmed
+'        GetVariableValue/SetVariableValue pattern (see
+'        library/reference/hexagon-sample-01-increment-variable/) would
+'        have the DMIS-side alignment block itself ASSIGN/ the origin
+'        and rotation into V variables, then this function would just
+'        call Part1.GetVariableValue on each of those instead of trying
+'        to reach a CoordSys object directly. Switch to that approach
+'        if CoordSys below doesn't exist.
 ' ---------------------------------------------------------------------
 Sub GetCurrentAlignment(ByRef oX As Double, ByRef oY As Double, ByRef oZ As Double, _
                          ByRef zI As Double, ByRef zJ As Double, ByRef zK As Double)
