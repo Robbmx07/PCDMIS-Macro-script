@@ -2,7 +2,7 @@ name: Build Windows executable
 
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/happy-euler-c21z0k"]
     paths:
       - "app.py"
       - "manifest.json"
