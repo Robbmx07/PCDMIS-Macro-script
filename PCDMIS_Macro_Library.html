@@ -472,14 +472,18 @@ function renderList(){
   const filtered = LIBRARY.filter(e => activeFilter === "All" || e.category === activeFilter);
   document.getElementById("countLabel").textContent = filtered.length + " / " + LIBRARY.length + " files";
 
-  let lastCat = null;
+  const categoryContainers = {};
   filtered.forEach(e => {
-    if(e.category !== lastCat){
+    let container = categoryContainers[e.category];
+    if(!container){
       const label = document.createElement("div");
       label.className = "group-label";
       label.textContent = e.category;
       el.appendChild(label);
-      lastCat = e.category;
+
+      container = document.createElement("div");
+      el.appendChild(container);
+      categoryContainers[e.category] = container;
     }
     const item = document.createElement("div");
     item.className = "item" + (e.id === selectedId ? " selected" : "");
@@ -491,7 +495,7 @@ function renderList(){
       </div>
     `;
     item.onclick = () => { selectedId = e.id; activeFileTab = "script"; renderAll(); };
-    el.appendChild(item);
+    container.appendChild(item);
   });
 }
 
