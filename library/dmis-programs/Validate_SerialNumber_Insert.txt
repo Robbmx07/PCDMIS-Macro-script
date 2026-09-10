@@ -1,0 +1,20 @@
+' Native command block — paste directly into Command Mode.
+' Full re-prompt loop. Paste where you want the operator to enter and
+' validate a serial number before the routine continues.
+' Confidence: HIGH — LABEL/GOTO/IF...END_IF structure confirmed against
+' real working PC-DMIS code shared by users in Hexagon's community
+' (not the single-source uploaded guide).
+
+LBL_GET_SN =LABEL/
+C1 =COMMENT/INPUT,YES,Enter Part Serial Number (format SN-####):
+ASSIGN/V_SN_INPUT = C1.INPUT
+ASSIGN/V_SN_VALID = 0
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\Validate_SerialNumber.bas
+FUNCTION/Main,SHOW=YES,,
+ENDSCRIPT/
+
+IF/V_SN_VALID == 0
+COMMENT/OPER,NO,Invalid serial number format. Please re-enter.
+GOTO/LBL_GET_SN
+END_IF/

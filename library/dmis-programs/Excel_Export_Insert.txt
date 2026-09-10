@@ -1,0 +1,7 @@
+' Native command block — paste directly into Command Mode.
+' Insert at the very end of the routine, after every dimension you
+' want included in the export.
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\Excel_Export_Results.bas
+FUNCTION/Main,SHOW=YES,,
+ENDSCRIPT/

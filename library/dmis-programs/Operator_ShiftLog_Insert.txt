@@ -1,0 +1,9 @@
+' Native command block — paste directly into Command Mode.
+' Insert near the top of the routine, before measurement begins.
+
+C1 =COMMENT/INPUT,YES,Enter your Employee/Clock Number:
+ASSIGN/V_EMP_ID = C1.INPUT
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\Operator_ShiftLog.bas
+FUNCTION/Main,SHOW=YES,,
+ENDSCRIPT/

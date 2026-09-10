@@ -1,0 +1,10 @@
+' Native command block — paste directly into Command Mode.
+' Declare the counter once, before your part loop begins:
+
+ASSIGN/V_PART_COUNT = 0
+
+' Then inside the loop, after each part is measured, insert:
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\PartCounter_Increment.bas
+FUNCTION/Main,SHOW=YES,,
+ENDSCRIPT/

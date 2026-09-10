@@ -1,0 +1,18 @@
+' Native command block — paste directly into Command Mode.
+' Declare once, near the very top of the routine:
+
+ASSIGN/V_START_TIME = ""
+
+' Insert this immediately after (still near the top, before measurement begins):
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\Runtime_Logger.bas
+FUNCTION/StartTimer,SHOW=YES,,
+ENDSCRIPT/
+
+' ... your measurement routine runs here ...
+
+' Insert this at the very end of the routine:
+
+SCRIPT/FILENAME = C:\PCDMIS_Scripts\Runtime_Logger.bas
+FUNCTION/StopTimer,SHOW=YES,,
+ENDSCRIPT/
